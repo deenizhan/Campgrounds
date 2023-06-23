@@ -72,13 +72,11 @@ app.delete('/campgrounds/:id', async (req, res) => {
 
 })
 
-// app.get('/makecampground', async (req, res) => {
-//     const camp = new Campground({title : 'My Backyard', description : 'cheap camping'})
-//     await camp.save();
-//     res.send(camp)
-// })
-
-
+app.get('/makecampground', async (req, res) => {
+    const camp = new Campground({ title: 'My Backyard', description: 'cheap camping' })
+    await camp.save();
+    res.send(camp)
+})
 
 app.use((err, req, res, next) => {
     res.send('oh no there is an error!');
