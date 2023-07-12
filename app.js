@@ -111,6 +111,13 @@ app.post('/campgrounds/:id/reviews', validateReview, catchAsync(async (req, res)
     res.redirect(`/campgrounds/${campground._id}`); // 64a41271cf2f1f833bd3266c
 }))
 
+app.delete('/campgrounds/:id/reviews/:reviewId', catchAsync(async (req, res) => {
+    const { id, reviewId } = req.params;
+    await Campground.findByIdAndUpdate(id, { $pull: { reviews: reviewId } })
+    await Review.findByIdAndDelete(reviewId);
+    res.redirect(`/campgrounds/${id}`)
+}))
+
 app.all('*', (req, res, next) => {
     // res.send('404!!!')
     next(new ExpressError('Page Not Found', 404));
