@@ -3,10 +3,11 @@ const path = require('path');
 const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 const Joi = require('joi')
-const { campgroundSchema } = require('./schemas.js')
+const { campgroundSchema, reviewSchema } = require('./schemas.js')
 const Campground = require('./models/campground');
 const catchAsync = require('./utils/catchAsync');
 const ExpressError = require('./utils/ExpressError');
+const Review = require('./models/review');
 
 // npm i ejs-mate
 const ejsMate = require('ejs-mate')
@@ -41,6 +42,16 @@ const validateCampground = (req, res, next) => {
     }
 }
 
+const validateReview = (req, res, next) => {
+    const { error } = reviewSchema.validate(req.body);
+    if (error) {
+        msg = error.details.map(el => el.message).join(',');
+        throw new ExpressError(msg, 400)
+    } else {
+        next();
+    }
+}
+
 app.get('/', (req, res) => {
     res.render('home');
 })
@@ -63,7 +74,8 @@ app.post('/campgrounds', validateCampground, catchAsync(async (req, res, next) =
 }))
 
 app.get('/campgrounds/:id', catchAsync(async (req, res) => {
-    const campground = await Campground.findById(req.params.id);
+    const campground = await Campground.findById(req.params.id).populate('reviews');
+
     res.render('campgrounds/show', { campground })
 }))
 
@@ -90,6 +102,15 @@ app.get('/makecampground', catchAsync(async (req, res) => {
     res.send(camp)
 }))
 
+app.post('/campgrounds/:id/reviews', validateReview, catchAsync(async (req, res) => {
+    const campground = await Campground.findById(req.params.id);
+    const review = new Review(req.body.review);
+    campground.reviews.push(review);
+    await review.save();
+    await campground.save();
+    res.redirect(`/campgrounds/${campground._id}`); // 64a41271cf2f1f833bd3266c
+}))
+
 app.all('*', (req, res, next) => {
     // res.send('404!!!')
     next(new ExpressError('Page Not Found', 404));
@@ -105,3 +126,5 @@ app.use((err, req, res, next) => {
 app.listen(3000, (req, res) => {
     console.log('Serving on port 3000');
 })
+
+
