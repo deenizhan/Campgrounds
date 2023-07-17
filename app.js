@@ -1,20 +1,24 @@
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
+const ejsMate = require('ejs-mate')
+const session = require('express-session')
 const methodOverride = require('method-override');
-const Joi = require('joi')
+
 const { campgroundSchema, reviewSchema } = require('./schemas.js')
 const Campground = require('./models/campground');
 const ExpressError = require('./utils/ExpressError');
 const Review = require('./models/review');
-
 const campgrounds = require('./routes/campgrounds.js')
 const reviews = require('./routes/reviews.js')
 
 // npm i ejs-mate
-const ejsMate = require('ejs-mate')
 
-mongoose.connect('mongodb://localhost:27017/yelp-camp');
+mongoose.connect('mongodb://localhost:27017/yelp-camp',
+    {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    });
 
 const db = mongoose.connection;
 
@@ -26,13 +30,14 @@ db.once('open', () => {
 });
 
 const app = express();
-
 app.engine('ejs', ejsMate);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 app.use(express.urlencoded({ extended: true }))
 app.use(methodOverride('_method'))
+app.use(express.static(path.join(__dirname, 'public')));
+
 
 app.use('/campgrounds', campgrounds);
 app.use('/campgrounds/:id/reviews', reviews);
