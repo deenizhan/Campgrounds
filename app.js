@@ -5,6 +5,9 @@ const ejsMate = require('ejs-mate')
 const methodOverride = require('method-override');
 const session = require('express-session')
 const flash = require('connect-flash')
+const passport = require('passport');
+const LocalStrategy = require('passport-local')
+const User = require('./models/user')
 
 const { campgroundSchema, reviewSchema } = require('./schemas.js')
 const Campground = require('./models/campground');
@@ -59,6 +62,12 @@ app.use((req, res, next) => {
 
 app.use('/campgrounds', campgrounds);
 app.use('/campgrounds/:id/reviews', reviews);
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()))
+
+passport.serializeUser(User.serializeUser()); // 
+passport.deserializeUser(User.deserializeUser())
 
 app.get('/', (req, res) => {
     res.render('home');
@@ -69,6 +78,12 @@ app.get('/', (req, res) => {
 //     await camp.save();
 //     res.send(camp)
 // }))
+
+app.get('/fakeUser', async (req, res) => {
+    const user = new User({ email: 'denizhan@123.com', username: 'denden' })
+    const newUser = await User.register(user, 'chicken') //takes entire model and takes password 
+    res.send(newUser)
+})
 
 app.all('*', (req, res, next) => {
     // res.send('404!!!')
