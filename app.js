@@ -13,8 +13,9 @@ const { campgroundSchema, reviewSchema } = require('./schemas.js')
 const Campground = require('./models/campground');
 const ExpressError = require('./utils/ExpressError');
 const Review = require('./models/review');
-const campgrounds = require('./routes/campgrounds.js')
-const reviews = require('./routes/reviews.js')
+const usersRoutes = require('./routes/user')
+const campgroundRoutes = require('./routes/campgrounds.js')
+const reviewRoutes = require('./routes/reviews.js')
 
 // npm i ejs-mate
 
@@ -60,8 +61,10 @@ app.use((req, res, next) => {
     next()
 })
 
-app.use('/campgrounds', campgrounds);
-app.use('/campgrounds/:id/reviews', reviews);
+app.use('/', usersRoutes);
+app.use('/campgrounds', campgroundRoutes);
+app.use('/campgrounds/:id/reviews', reviewRoutes);
+
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()))
