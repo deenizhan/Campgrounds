@@ -65,6 +65,7 @@ passport.deserializeUser(User.deserializeUser())
 
 
 app.use((req, res, next) => {
+    // console.log(req.session)
     res.locals.currentUser = req.user;
     res.locals.success = req.flash('success'); // take whatever under the name success and save it in locals.success
     res.locals.error = req.flash('error');
