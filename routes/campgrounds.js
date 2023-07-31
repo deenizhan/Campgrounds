@@ -1,10 +1,6 @@
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
 }
-// console.log(process.env);
-// console.log(process.env.NODE_ENV);
-// console.log(process.env.SECRET);
-// console.log(process.env.API_KEY);
 
 const express = require('express');
 const router = express.Router();
@@ -19,10 +15,7 @@ const Campground = require('../models/campground');
 
 router.route('/')
     .get(catchAsync(campgrounds.index))
-    // .post(validateCampground, isLoggedIn, catchAsync(campgrounds.createCampground))
-    .post(upload.array('image'), (req, res) => {
-        console.log(req.files)
-    })
+    .post(isLoggedIn, upload.array('image'), validateCampground, catchAsync(campgrounds.createCampground))
 
 router.get('/new', isLoggedIn, campgrounds.renderNewForm)
 
